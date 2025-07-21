@@ -153,7 +153,8 @@ export const translations = {
           save: 'Save Custom Template',
           reset: 'Reset to Default',
           close: 'Close',
-      }
+      },
+      githubAriaLabel: 'GitHub Repository',
     },
     status: {
         preparingAnalysis: 'Preparing analysis...',
@@ -245,25 +246,29 @@ ${noteContent}
         title: 'How to Use Erudite',
         intro: 'This tool helps you transform dense academic papers into structured, insightful notes. Follow these simple steps:',
         step1: {
+            title: 'Set Up API Keys:',
+            body: 'Before you start, you need an API key from an AI provider. The academic search feature requires a Google Gemini key. Get yours from Google AI Studio, then click the key icon (🔑) in the top-right to save it in the app. Keys are stored securely in your browser.',
+        },
+        step2: {
             title: 'Choose Your Mode:',
             body: 'Select "Deep Read" to analyze your own documents, or "Synthesis" to generate a literature review.',
         },
-        step2: {
+        step3: {
             title: 'Provide Content:',
             option1: {
                 title: 'In Deep Read Mode:',
-                body: 'Use the tabs to either "Upload Files" (drag & drop or browse for PDFs) or "Paste Text" to input your academic content directly. You can also specify the paper type for more accurate note-taking.'
+                body: 'Use the tabs to either "Upload Files" (you can upload multiple PDFs to analyze them in one batch) or "Paste Text" to input your academic content directly. You can also specify the paper type for more accurate note-taking.'
             },
             option2: {
                 title: 'In Synthesis Mode:',
                 body: 'Enter a research topic into the search bar, or use the local upload/paste options. The AI will use all provided content to generate a review.'
             }
         },
-        step3: {
+        step4: {
             title: 'Analyze:',
             body: 'Click the "Analyze" or "Synthesize" button. The AI will begin processing the content, which may take a few moments. You\'ll see status updates as it works.'
         },
-        step4: {
+        step5: {
             title: 'Interact with Notes:',
             action1: 'Discuss:',
             action1_desc: 'Open a chat window to ask follow-up questions about the note. The AI will act as an academic collaborator, helping you explore the paper\'s details more deeply.',
@@ -428,7 +433,8 @@ ${noteContent}
           save: '保存自定义模板',
           reset: '恢复默认',
           close: '关闭',
-      }
+      },
+      githubAriaLabel: 'GitHub 仓库',
     },
     status: {
         preparingAnalysis: '准备分析...',
@@ -518,40 +524,44 @@ ${noteContent}
     },
     modal: {
         title: '如何使用“笔纪”',
-        intro: '本工具帮助您将复杂的学术论文转化为结构化、富有洞察力的笔记。请遵循以下简单步骤：',
+        intro: '本工具可将复杂的学术论文转化为结构化、富有洞察力的笔记。请遵循以下简单步骤：',
         step1: {
-            title: '选择您的模式:',
-            body: '选择“精读模式”以分析您自己的文档，或选择“综述模式”以生成文献综述。',
+            title: '设置API密钥:',
+            body: '开始前，需要一个AI提供商的API密钥。学术搜索功能特别需要一个Google Gemini密钥。可从Google AI Studio获取密钥，然后点击右上角的钥匙图标(🔑)将其保存在应用中。密钥会安全地存储在浏览器中。',
         },
         step2: {
+            title: '选择模式:',
+            body: '选择“精读模式”以分析个人文档，或选择“综述模式”以生成文献综述。',
+        },
+        step3: {
             title: '提供内容:',
             option1: {
                 title: '在精读模式中:',
-                body: '使用选项卡选择“上传文件”（拖放或浏览PDF）或“粘贴文本”以直接输入您的学术内容。您还可以指定论文类型以获得更准确的笔记。'
+                body: '使用选项卡选择“上传文件”（可一次性上传多篇PDF进行批量分析）或“粘贴文本”以直接输入学术内容。还可指定论文类型以获得更准确的笔记。'
             },
             option2: {
                 title: '在综述模式中:',
                 body: '在搜索框中输入一个研究主题，或使用本地上传/粘贴选项。AI将使用所有提供的内容来生成综述。'
             }
         },
-        step3: {
-            title: '开始处理:',
-            body: '点击“分析”或“生成综述”按钮。AI将开始处理内容，这可能需要一些时间。您会看到处理过程中的状态更新。'
-        },
         step4: {
+            title: '开始处理:',
+            body: '点击“分析”或“生成综述”按钮。AI将开始处理内容，这可能需要一些时间。处理过程中会显示状态更新。'
+        },
+        step5: {
             title: '与笔记互动:',
             action1: '讨论:',
-            action1_desc: '打开一个聊天窗口，就笔记内容提出追问。AI将扮演学术合作者的角色，帮助您更深入地探讨论文细节。',
+            action1_desc: '打开聊天窗口，就笔记内容提出追问。AI将扮演学术合作者的角色，以帮助更深入地探讨论文细节。',
             action2: '编辑:',
-            action2_desc: '直接在浏览器中修改生成的笔记。点击“保存”以保留您的更改，或点击“取消”放弃修改。',
+            action2_desc: '直接在浏览器中修改生成的笔记。点击“保存”以保留更改，或点击“取消”放弃修改。',
             action3: '复制:',
             action3_desc: '立即将笔记的完整Markdown内容复制到剪贴板。',
             action4: '下载笔记:',
-            action4_desc: '使用“下载笔记”按钮，将当前所有可见的笔记以独立的`.md`文件格式保存到您的电脑上。如果有多篇笔记，它们将被保存在一个.zip压缩包中。',
+            action4_desc: '使用“下载笔记”按钮，将当前所有可见的笔记以独立的`.md`文件格式保存到本地电脑。如果有多篇笔记，它们将被保存在一个.zip压缩包中。',
             action5: '并排阅读:',
             action5_desc: '对于从PDF上传的笔记，点击此按钮可打开分屏视图，左侧显示PDF，右侧显示笔记。笔记中的“图1”等引用是可点击的，会直接跳转到PDF中的相应页面。',
         },
-        outro: '如果在使用PDF时遇到任何问题，请确保它们是基于文本的，而不是扫描的图片。祝您研究愉快！'
+        outro: '如果在使用PDF时遇到任何问题，请确保它们是基于文本的，而不是扫描的图片。祝研究愉快！'
     }
   },
   de: {
@@ -703,7 +713,8 @@ ${noteContent}
           save: 'Benutzerdefinierte Vorlage speichern',
           reset: 'Auf Standard zurücksetzen',
           close: 'Schließen',
-      }
+      },
+      githubAriaLabel: 'GitHub-Repository',
     },
     status: {
         preparingAnalysis: 'Analyse wird vorbereitet...',
@@ -795,38 +806,42 @@ ${noteContent}
         title: 'Anleitung zur Benutzung von Erudite',
         intro: 'Dieses Werkzeug hilft Ihnen, dichte wissenschaftliche Arbeiten in strukturierte, aufschlussreiche Notizen umzuwandeln. Befolgen Sie diese einfachen Schritte:',
         step1: {
+            title: 'API-Schlüssel einrichten:',
+            body: 'Bevor Sie beginnen, benötigen Sie einen API-Schlüssel von einem KI-Anbieter. Die akademische Suchfunktion erfordert einen Google Gemini-Schlüssel. Holen Sie sich Ihren im Google AI Studio und klicken Sie dann auf das Schlüssel-Symbol (🔑) oben rechts, um ihn in der App zu speichern. Die Schlüssel werden sicher in Ihrem Browser gespeichert.',
+        },
+        step2: {
             title: 'Wählen Sie Ihren Modus:',
             body: 'Wählen Sie "Tiefenlektüre", um Ihre eigenen Dokumente zu analysieren, oder "Synthese", um eine Literaturübersicht zu erstellen.',
         },
-        step2: {
+        step3: {
             title: 'Inhalt bereitstellen:',
             option1: {
                 title: 'Im Tiefenlektüre-Modus:',
-                body: 'Verwenden Sie die Tabs, um entweder "Dateien hochzuladen" (per Drag & Drop oder durchsuchen nach PDFs) oder "Text einzufügen", um Ihren akademischen Inhalt direkt einzugeben. Sie können auch den Paper-Typ für genauere Notizen angeben.'
+                body: 'Verwenden Sie die Tabs, um entweder "Dateien hochzuladen" (Sie können mehrere PDFs hochladen, um sie in einem Stapel zu analysieren) oder "Text einzufügen", um Ihren akademischen Inhalt direkt einzugeben. Sie können auch den Paper-Typ für genauere Notizen angeben.'
             },
             option2: {
                 title: 'Im Synthese-Modus:',
                 body: 'Geben Sie ein Forschungsthema in die Suchleiste ein oder verwenden Sie die lokalen Upload-/Einfügeoptionen. Die KI wird alle bereitgestellten Inhalte verwenden, um eine Übersicht zu erstellen.'
             }
         },
-        step3: {
+        step4: {
             title: 'Analysieren:',
             body: 'Klicken Sie auf die Schaltfläche "Analysieren" oder "Synthese erstellen". Die KI beginnt mit der Verarbeitung des Inhalts, was einige Momente dauern kann. Sie sehen Statusaktualisierungen, während sie arbeitet.'
         },
-        step4: {
+        step5: {
             title: 'Mit Notizen interagieren:',
             action1: 'Diskutieren:',
             action1_desc: 'Öffnen Sie ein Chat-Fenster, um Folgefragen zur Notiz zu stellen. Die KI agiert als akademischer Mitarbeiter und hilft Ihnen, die Details des Papers tiefer zu erforschen.',
             action2: 'Bearbeiten:',
             action2_desc: 'Ändern Sie die generierte Notiz direkt in Ihrem Browser. Klicken Sie auf "Speichern", um Ihre Änderungen zu behalten, oder auf "Abbrechen", um sie zu verwerfen.',
             action3: 'Kopieren:',
-            action3_desc: 'Kopieren Sie den gesamten Markdown-Inhalt der Notiz sofort in Ihre Zwischenablage.',
+            action3_desc: 'Kopieren Sie den vollständigen Markdown-Inhalt der Notiz sofort in Ihre Zwischenablage.',
             action4: 'Notizen herunterladen:',
-            action4_desc: 'Verwenden Sie die Schaltfläche "Notizen herunterladen", um alle aktuell sichtbaren Notizen als einzelne `.md`-Dateien auf Ihrem Computer zu speichern. Wenn mehrere Notizen vorhanden sind, werden sie in einer einzigen .zip-Datei gespeichert.',
+            action4_desc: 'Verwenden Sie die Schaltfläche "Notizen herunterladen", um alle aktuell sichtbaren Notizen als einzelne `.md`-Dateien auf Ihrem Computer zu speichern. Bei mehreren Notizen werden sie in einer einzigen .zip-Datei gespeichert.',
             action5: 'Mit PDF anzeigen:',
-            action5_desc: 'Für Notizen aus hochgeladenen PDFs klicken Sie hier, um eine geteilte Ansicht mit dem PDF auf der linken und der Notiz auf der rechten Seite zu öffnen. Verweise wie "Abb. 1" in der Notiz sind anklickbar und springen zur richtigen Seite im PDF.',
+            action5_desc: 'Für Notizen aus hochgeladenen PDFs klicken Sie hier, um eine geteilte Ansicht mit dem PDF links und der Notiz rechts zu öffnen. Verweise wie "Abb. 1" in der Notiz sind klickbar und springen zur richtigen Seite im PDF.',
         },
-        outro: 'Wenn Sie auf Probleme mit PDFs stoßen, stellen Sie sicher, dass sie textbasiert und kein gescanntes Bild sind. Viel Spaß bei der Forschung!'
+        outro: 'Wenn Sie Probleme mit PDFs haben, stellen Sie sicher, dass sie textbasiert und kein gescanntes Bild sind. Viel Spaß beim Forschen!'
     }
-  }
-};
+  },
+}

@@ -207,27 +207,30 @@ const InstructionModal = ({ onClose, lang }: { onClose: () => void, lang: Langua
                 <h2>{t.title}</h2>
                 <p>{t.intro}</p>
                 <ol>
-                    <li>
+                     <li>
                         <strong>{t.step1.title}</strong> {t.step1.body}
                     </li>
                     <li>
-                        <strong>{t.step2.title}</strong>
+                        <strong>{t.step2.title}</strong> {t.step2.body}
+                    </li>
+                    <li>
+                        <strong>{t.step3.title}</strong>
                         <ul>
-                            <li><strong>{t.step2.option1.title}</strong> {t.step2.option1.body}</li>
-                            <li><strong>{t.step2.option2.title}</strong> {t.step2.option2.body}</li>
+                            <li><strong>{t.step3.option1.title}</strong> {t.step3.option1.body}</li>
+                            <li><strong>{t.step3.option2.title}</strong> {t.step3.option2.body}</li>
                         </ul>
                     </li>
                     <li>
-                        <strong>{t.step3.title}</strong> {t.step3.body}
+                        <strong>{t.step4.title}</strong> {t.step4.body}
                     </li>
                     <li>
-                        <strong>{t.step4.title}</strong>
+                        <strong>{t.step5.title}</strong>
                         <ul>
-                            <li><strong>{t.step4.action1}</strong> {t.step4.action1_desc}</li>
-                            <li><strong>{t.step4.action2}</strong> {t.step4.action2_desc}</li>
-                             <li><strong>{t.step4.action5}</strong> {t.step4.action5_desc}</li>
-                            <li><strong>{t.step4.action3}</strong> {t.step4.action3_desc}</li>
-                            <li><strong>{t.step4.action4}</strong> {t.step4.action4_desc}</li>
+                            <li><strong>{t.step5.action1}</strong> {t.step5.action1_desc}</li>
+                            <li><strong>{t.step5.action2}</strong> {t.step5.action2_desc}</li>
+                             <li><strong>{t.step5.action5}</strong> {t.step5.action5_desc}</li>
+                            <li><strong>{t.step5.action3}</strong> {t.step5.action3_desc}</li>
+                            <li><strong>{t.step5.action4}</strong> {t.step5.action4_desc}</li>
                         </ul>
                     </li>
                 </ol>
@@ -1067,22 +1070,15 @@ ${template}`;
         setEditingContent('');
     };
     
-    const handlePasteInEditor = async (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const handlePasteInEditor = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
         if (!e.clipboardData || !e.clipboardData.items) return;
-    
-        const items = e.clipboardData.items;
-        let imageFile: File | null = null;
-    
-        for (let i = 0; i < items.length; i++) {
-            if (items[i].type.startsWith('image/')) {
-                imageFile = items[i].getAsFile();
-                break; 
-            }
-        }
-    
+
+        const imageItem = Array.from(e.clipboardData.items).find(item => item.type.startsWith('image/'));
+        const imageFile = imageItem?.getAsFile();
+
         if (imageFile) {
-            e.preventDefault(); // Prevent default paste behavior
-            
+            e.preventDefault();
+
             const reader = new FileReader();
             reader.onload = (event) => {
                 const base64Image = event.target?.result as string;
@@ -1090,14 +1086,13 @@ ${template}`;
                     const textarea = e.currentTarget;
                     const selectionStart = textarea.selectionStart;
                     const selectionEnd = textarea.selectionEnd;
-                    const currentValue = editingContent;
                     
                     const markdownImage = `\n![pasted-image](${base64Image})\n`;
     
                     const newValue = 
-                        currentValue.substring(0, selectionStart) + 
+                        editingContent.substring(0, selectionStart) + 
                         markdownImage + 
-                        currentValue.substring(selectionEnd);
+                        editingContent.substring(selectionEnd);
                     
                     setEditingContent(newValue);
                     
@@ -1108,9 +1103,13 @@ ${template}`;
                     }, 0);
                 }
             };
+            reader.onerror = () => {
+                console.error("Error reading pasted image file.");
+            };
             reader.readAsDataURL(imageFile);
         }
     };
+
 
     const toggleChat = (noteId: number) => {
         setNotes(notes.map(n => n.id === noteId ? { ...n, isChatVisible: !n.isChatVisible } : n));
@@ -1419,7 +1418,7 @@ ${template}`;
         const controller = new AbortController();
         abortControllerRef.current = controller;
         
-        setNotes(prev => prev.map(n => n.id === noteId ? { ...n, content: '', chatHistory: [], isChatVisible: false, isGenerating: true } : n));
+        setNotes(prev => prev.map(n => n.id === noteId ? { ...n, content: '', chatHistory: [], isChatVisible: false, isGenerating: true, isEditing: false } : n));
         
         try {
             const paperText = await paperSource.getContent();
@@ -1439,13 +1438,19 @@ ${template}`;
                 fullResponse += chunk;
                 setNotes(prev => prev.map(n => n.id === noteId ? { ...n, content: fullResponse } : n));
             }
+            // On success, mark as not generating
+            setNotes(prev => prev.map(n => n.id === noteId ? { ...n, isGenerating: false } : n));
         } catch (e: any) {
-             if (e.name !== 'AbortError') {
+             if (e.name === 'AbortError') {
+                 // On abort, just mark as not generating
+                 setNotes(prev => prev.map(n => n.id === noteId ? { ...n, isGenerating: false } : n));
+             } else {
                 setError(`${t.errors.genericError} ${e.message}`);
-                setNotes(prev => prev.map(n => n.id === noteId ? { ...n, content: `\n**${t.errors.genericError}** ${e.message}\n` } : n));
+                // On failure, set error message and mark as not generating
+                const errorMessage = `\n**${t.errors.genericError}** ${e.message}\n`;
+                setNotes(prev => prev.map(n => n.id === noteId ? { ...n, content: errorMessage, isGenerating: false } : n));
             }
         } finally {
-            setNotes(prev => prev.map(n => n.id === noteId ? { ...n, isGenerating: false } : n));
              if (abortControllerRef.current === controller) {
                 abortControllerRef.current = null;
             }
@@ -1629,6 +1634,25 @@ ${template}`;
                     file={activePdfNote.file}
                     onClose={() => setActivePdfNote(null)}
                     lang={language}
+                    t={t}
+                    editingNoteId={editingNoteId}
+                    editingContent={editingContent}
+                    setEditingContent={setEditingContent}
+                    handleSaveClick={handleSaveClick}
+                    handleCancelClick={handleCancelClick}
+                    handlePasteInEditor={handlePasteInEditor}
+                    handleEditClick={handleEditClick}
+                    handleCopy={handleCopy}
+                    copySuccessId={copySuccessId}
+                    toggleChat={toggleChat}
+                    isAnyNoteGenerating={isAnyNoteGenerating}
+                    generationMode={generationMode}
+                    handleRegenerateNote={handleRegenerateNote}
+                    handleDeleteNote={handleDeleteNote}
+                    onSendMessage={handleSendMessage}
+                    onRegenerateMessage={handleRegenerateMessage}
+                    onDeleteTurn={handleDeleteTurn}
+                    onBranchConversation={handleBranchConversation}
                 />;
     }
 
@@ -2048,6 +2072,14 @@ ${template}`;
                      )}
 
                 </main>
+                 <footer className="footer">
+                    <p>© {new Date().getFullYear()} Seasonsling</p>
+                    <a href="https://github.com/Seasonsling/Erudite" target="_blank" rel="noopener noreferrer" aria-label={t.ui.githubAriaLabel}>
+                        <svg className="github-icon" viewBox="0 0 16 16" version="1.1" width="24" height="24" aria-hidden="true">
+                            <path fillRule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+                        </svg>
+                    </a>
+                </footer>
             </div>
             {isInstructionModalOpen && <InstructionModal onClose={() => setIsInstructionModalOpen(false)} lang={language} />}
             {isApiKeyModalOpen && <ApiKeyModal currentKeys={apiKeys} onSave={handleSaveApiKeys} onClose={() => setIsApiKeyModalOpen(false)} lang={language} />}
@@ -2065,11 +2097,43 @@ ${template}`;
     );
 };
 
-const TwoPaneViewer = ({ activeNote, file, onClose, lang }: { activeNote: Note, file: File, onClose: () => void, lang: Language }) => {
+const TwoPaneViewer = (props: {
+    activeNote: Note,
+    file: File,
+    onClose: () => void,
+    lang: Language,
+    t: any,
+    editingNoteId: number | null,
+    editingContent: string,
+    setEditingContent: (content: string) => void,
+    handleSaveClick: (noteId: number) => void,
+    handleCancelClick: () => void,
+    handlePasteInEditor: (e: React.ClipboardEvent<HTMLTextAreaElement>) => void,
+    handleEditClick: (note: Note) => void,
+    handleCopy: (note: Note) => void,
+    copySuccessId: number | null,
+    toggleChat: (noteId: number) => void,
+    isAnyNoteGenerating: boolean,
+    generationMode: 'deep_read' | 'synthesis',
+    handleRegenerateNote: (noteId: number) => void,
+    handleDeleteNote: (noteId: number) => void,
+    onSendMessage: (noteId: number, message: string) => void,
+    onRegenerateMessage: (noteId: number, modelMessageId: number) => void,
+    onDeleteTurn: (noteId: number, userMessageId: number) => void,
+    onBranchConversation: (noteId: number, modelMessageId: number) => void,
+}) => {
+    const {
+        activeNote, file, onClose, lang, t,
+        editingNoteId, editingContent, setEditingContent,
+        handleSaveClick, handleCancelClick, handlePasteInEditor,
+        handleEditClick, handleCopy, copySuccessId, toggleChat,
+        isAnyNoteGenerating, generationMode, handleRegenerateNote, handleDeleteNote,
+        onSendMessage, onRegenerateMessage, onDeleteTurn, onBranchConversation
+    } = props;
+    
     const [pdfUrl, setPdfUrl] = useState('');
     const [pdfTextCache, setPdfTextCache] = useState<Map<number, string>>(new Map());
     const [isSearchingPdf, setIsSearchingPdf] = useState(false);
-    const t = translations[lang];
 
     // Effect to create and revoke the PDF Object URL and pre-cache text content
     useEffect(() => {
@@ -2107,11 +2171,9 @@ const TwoPaneViewer = ({ activeNote, file, onClose, lang }: { activeNote: Note, 
         setIsSearchingPdf(true);
         const lowerSearchText = searchText.toLowerCase().trim();
         
-        // Use a small timeout to avoid blocking the UI thread on large PDFs
         setTimeout(() => {
             for (const [pageNum, pageText] of pdfTextCache.entries()) {
                 if (pageText.includes(lowerSearchText)) {
-                    // Update iframe src to jump to the page
                     const baseUrl = pdfUrl.split('#')[0];
                     setPdfUrl(`${baseUrl}#page=${pageNum}`);
                     setIsSearchingPdf(false);
@@ -2121,7 +2183,6 @@ const TwoPaneViewer = ({ activeNote, file, onClose, lang }: { activeNote: Note, 
             setIsSearchingPdf(false);
         }, 10);
     };
-
 
     const { frontMatter, body } = parseNoteContent(cleanMarkdown(activeNote.content));
 
@@ -2142,12 +2203,72 @@ const TwoPaneViewer = ({ activeNote, file, onClose, lang }: { activeNote: Note, 
                     )}
                 </div>
                 <div className="note-pane">
-                     {frontMatter && (
-                        <pre className="frontmatter-block"><code>{frontMatter}</code></pre>
-                     )}
-                     <div className="markdown-body">
-                        <NoteRenderer content={body || ''} onReferenceClick={handleReferenceClick} />
-                     </div>
+                     <div className="note-wrapper card">
+                        {editingNoteId === activeNote.id ? (
+                            <textarea
+                                className="edit-textarea"
+                                value={editingContent}
+                                onChange={(e) => setEditingContent(e.target.value)}
+                                onPaste={handlePasteInEditor}
+                                autoFocus
+                            />
+                        ) : (
+                            <>
+                                {activeNote.isGenerating ? (
+                                    <div className="output-placeholder"><span className="loader-small"></span>{t.ui.buttons.generating}</div>
+                                ) : activeNote.content.trim() ? (
+                                    <>
+                                        {frontMatter && (
+                                            <pre className="frontmatter-block"><code>{frontMatter}</code></pre>
+                                        )}
+                                        <div className="markdown-body">
+                                            <NoteRenderer content={body || ''} onReferenceClick={handleReferenceClick} />
+                                        </div>
+                                    </>
+                                ) : (
+                                    <div className="output-placeholder">{t.errors.genericError}</div>
+                                )}
+                            </>
+                        )}
+
+                        <div className="note-actions">
+                            {editingNoteId === activeNote.id ? (
+                                <>
+                                    <button className="note-action-button save" onClick={() => handleSaveClick(activeNote.id)}>{t.ui.buttons.save}</button>
+                                    <button className="note-action-button cancel" onClick={handleCancelClick}>{t.ui.buttons.cancel}</button>
+                                </>
+                            ) : (
+                                <>
+                                    <button className="note-action-button" onClick={() => toggleChat(activeNote.id)} disabled={!activeNote.content.trim() || isAnyNoteGenerating || activeNote.isGenerating}>{activeNote.isChatVisible ? t.ui.buttons.hideChat : t.ui.buttons.discuss}</button>
+                                    <button className="note-action-button" onClick={() => handleEditClick(activeNote)} disabled={!activeNote.content.trim() || isAnyNoteGenerating || activeNote.isGenerating}>{t.ui.buttons.edit}</button>
+                                    <button className="note-action-button" onClick={() => handleCopy(activeNote)} disabled={!activeNote.content.trim() || isAnyNoteGenerating || activeNote.isGenerating}>
+                                        {copySuccessId === activeNote.id ? t.ui.buttons.copied : t.ui.buttons.copy}
+                                    </button>
+                                    {generationMode === 'deep_read' && activeNote.sourceKey !== 'synthesis-from-notes' && (
+                                        <>
+                                            <button className="note-action-button" onClick={() => handleRegenerateNote(activeNote.id)} disabled={isAnyNoteGenerating || activeNote.isGenerating}>
+                                                {t.ui.buttons.regenerate}
+                                            </button>
+                                            <button className="note-action-button delete" onClick={() => handleDeleteNote(activeNote.id)} disabled={isAnyNoteGenerating || activeNote.isGenerating}>
+                                                {t.ui.buttons.delete}
+                                            </button>
+                                        </>
+                                    )}
+                                </>
+                            )}
+                        </div>
+
+                        {activeNote.isChatVisible && (
+                            <ChatInterface 
+                                note={activeNote}
+                                onSendMessage={onSendMessage}
+                                onRegenerate={onRegenerateMessage}
+                                onDeleteTurn={onDeleteTurn}
+                                onBranch={onBranchConversation}
+                                lang={lang}
+                            />
+                        )}
+                    </div>
                 </div>
             </main>
         </div>
